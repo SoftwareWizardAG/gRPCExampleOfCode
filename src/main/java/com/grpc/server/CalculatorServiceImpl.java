@@ -35,4 +35,35 @@ public class CalculatorServiceImpl extends CalculatorServiceGrpc.CalculatorServi
         }
         responseObserver.onCompleted();
     }
+
+    @Override
+    public StreamObserver<ComputerAverageRequest> computerAverage(StreamObserver<ComputerAverageResponse> responseObserver) {
+
+        StreamObserver<ComputerAverageRequest> requestObserver = new StreamObserver<ComputerAverageRequest>() {
+            int sum = 0, count = 0;
+
+            @Override
+            public void onNext(ComputerAverageRequest computerAverageRequest) {
+                sum += computerAverageRequest.getNumber();
+                ++count;
+            }
+
+            @Override
+            public void onError(Throwable throwable) {
+
+            }
+
+            @Override
+            public void onCompleted() {
+                double average = (double) sum / count;
+                responseObserver.onNext(
+                        ComputerAverageResponse.newBuilder()
+                                .setAverage(average)
+                                .build()
+                );
+                responseObserver.onCompleted();
+            }
+        };
+        return requestObserver;
+    }
 }
