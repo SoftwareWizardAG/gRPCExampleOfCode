@@ -3,6 +3,7 @@ package com.grpc.client;
 import com.proto.calculator.*;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
+import io.grpc.StatusRuntimeException;
 import io.grpc.stub.StreamObserver;
 
 import java.util.Arrays;
@@ -26,9 +27,28 @@ public class CalculatorClient {
         //calculateAverage(channel);
 
         //Bi Directional
-        calculateMaximum(channel);
+        //calculateMaximum(channel);
+
+        //error
+        doError(channel);
 
         channel.shutdown();
+    }
+
+    private static void doError(ManagedChannel channel) {
+        CalculatorServiceGrpc.CalculatorServiceBlockingStub blockingStub = CalculatorServiceGrpc.newBlockingStub(channel);
+        int number = -1;
+
+        try {
+            SquareRootResponse squareRootResponse = blockingStub.squareRoot(SquareRootRequest.newBuilder()
+                    .setNumber(number)
+                    .build());
+            System.out.println("Result of square root is: " + squareRootResponse.getNumberRoot());
+        } catch (StatusRuntimeException e) {
+            System.out.println("Got an exception for square root!");
+            e.printStackTrace();
+        }
+
     }
 
     private static void calculateMaximum(ManagedChannel channel) {
